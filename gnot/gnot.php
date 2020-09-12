@@ -11,7 +11,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Notify\Type;
+use Friendica\Domain\Model\Notify\Type;
 
 function gnot_install() {
 

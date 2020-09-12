@@ -11,7 +11,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Notify\Type;
+use Friendica\Domain\Model\Notify\Type;
 use Friendica\Model\User;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
