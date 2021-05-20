@@ -3,9 +3,10 @@
 /**
  * Name: LDAP Authenticate
  * Description: Authenticate a user against an LDAP directory
- * Version: 1.1
+ * Version: 1.2
  * Author: Mike Macgirvin <http://macgirvin.com/profile/mike>
  * Author: aymhce
+ * Author: Ryan <https://friendica.verya.pe/profile/ryan>
  */
 
 /**
@@ -61,15 +62,18 @@ use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Util\ConfigFileLoader;
 
+$defaults = include(__DIR__ . '/config/ldap.config.php');
+
 function ldapauth_install()
 {
-	Hook::register('load_config',  'addon/ldapauth/ldapauth.php', 'ldapauth_load_config');
-	Hook::register('authenticate', 'addon/ldapauth/ldapauth.php', 'ldapauth_hook_authenticate');
+	Hook::register('authenticate', __FILE__, 'ldapauth_hook_authenticate');
 }
 
-function ldapauth_load_config(\Friendica\App $a, ConfigFileLoader $loader)
+// Wrapper function to facilitate supplying default values from
+// config/ldap.config.php
+function ldapauth_config($key)
 {
-	$a->getConfigCache()->load($loader->loadAddonConfig('ldapauth'));
+	return DI::config()->get('ldapauth', $key, (($defaults['ldapauth'] ?? [])[$key] ?? null));
 }
 
 function ldapauth_hook_authenticate($a, &$b)
@@ -83,15 +87,15 @@ function ldapauth_hook_authenticate($a, &$b)
 
 function ldapauth_authenticate($username, $password)
 {
-	$ldap_server   = DI::config()->get('ldapauth', 'ldap_server');
-	$ldap_binddn   = DI::config()->get('ldapauth', 'ldap_binddn');
-	$ldap_bindpw   = DI::config()->get('ldapauth', 'ldap_bindpw');
-	$ldap_searchdn = DI::config()->get('ldapauth', 'ldap_searchdn');
-	$ldap_userattr = DI::config()->get('ldapauth', 'ldap_userattr');
-	$ldap_group    = DI::config()->get('ldapauth', 'ldap_group');
-	$ldap_autocreateaccount = DI::config()->get('ldapauth', 'ldap_autocreateaccount');
-	$ldap_autocreateaccount_emailattribute = DI::config()->get('ldapauth', 'ldap_autocreateaccount_emailattribute');
-	$ldap_autocreateaccount_nameattribute  = DI::config()->get('ldapauth', 'ldap_autocreateaccount_nameattribute');
+	$ldap_server   = ldapauth_config('ldap_server');
+	$ldap_binddn   = ldapauth_config('ldap_binddn');
+	$ldap_bindpw   = ldapauth_config('ldap_bindpw');
+	$ldap_searchdn = ldapauth_config('ldap_searchdn');
+	$ldap_userattr = ldapauth_config('ldap_userattr');
+	$ldap_group    = ldapauth_config('ldap_group');
+	$ldap_autocreateaccount = ldapauth_config('ldap_autocreateaccount');
+	$ldap_autocreateaccount_emailattribute = ldapauth_config('ldap_autocreateaccount_emailattribute');
+	$ldap_autocreateaccount_nameattribute  = ldapauth_config('ldap_autocreateaccount_nameattribute');
 
 	if (!extension_loaded('ldap') || !strlen($ldap_server)) {
 		Logger::error('Addon not configured or missing php-ldap extension', ['extension_loaded' => extension_loaded('ldap'), 'server' => $ldap_server]);
